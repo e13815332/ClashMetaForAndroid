@@ -98,6 +98,15 @@ class AppSettingsDesign(
             ) {
                 enabled = !running
             }
+
+            category(R.string.updates)
+
+            switch(
+                value = uiStore::autoCheckUpdate,
+                icon = R.drawable.ic_baseline_cloud_download,
+                title = R.string.auto_check_update,
+                summary = R.string.auto_check_update_summary,
+            )
         }
 
         binding.content.addView(screen.root)

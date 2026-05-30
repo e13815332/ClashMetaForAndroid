@@ -78,6 +78,11 @@ class UiStore(context: Context) {
         defaultValue = false,
     )
 
+    var autoCheckUpdate: Boolean by store.boolean(
+        key = "auto_check_update",
+        defaultValue = true,
+    )
+
     companion object {
         private const val PREFERENCE_NAME = "ui"
 

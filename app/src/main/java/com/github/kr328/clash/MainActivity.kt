@@ -24,18 +24,24 @@ import com.github.kr328.clash.util.withProfile
 import com.github.kr328.clash.core.bridge.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.selects.select
 import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
 import com.github.kr328.clash.design.R as DesignR
 
 class MainActivity : BaseActivity<MainDesign>() {
+    private var updateInfo: UpdateChecker.UpdateInfo? = null
+
     override suspend fun main() {
         val design = MainDesign(this)
 
         setContentDesign(design)
 
         design.fetch()
+
+        // Auto check for updates on startup
+        checkForUpdatesOnStartup(design)
 
         val ticker = ticker(TimeUnit.SECONDS.toMillis(1))
 
@@ -77,12 +83,64 @@ class MainActivity : BaseActivity<MainDesign>() {
                             startActivity(HelpActivity::class.intent)
                         MainDesign.Request.OpenAbout ->
                             design.showAbout(queryAppVersionName())
+                        MainDesign.Request.CheckUpdate ->
+                            performUpdateCheck(design, fromAbout = true)
+                        MainDesign.Request.StartDownload -> {
+                            updateInfo?.let {
+                                design.openDownloadUrl(it.downloadUrl)
+                            }
+                        }
                     }
                 }
                 if (clashRunning) {
                     ticker.onReceive {
                         design.fetchTraffic()
                     }
+                }
+            }
+        }
+    }
+
+    private suspend fun checkForUpdatesOnStartup(design: MainDesign) {
+        if (!uiStore.autoCheckUpdate) return
+
+        kotlinx.coroutines.GlobalScope.launch(Dispatchers.IO) {
+            val versionName = withContext(Dispatchers.Main) {
+                queryAppVersionName().lines().firstOrNull()
+            } ?: return@launch
+            val result = UpdateChecker.check(versionName)
+            if (result != null) {
+                updateInfo = result
+                withContext(Dispatchers.Main) {
+                    design.showUpdateAvailable(
+                        result.currentVersion,
+                        result.latestVersion,
+                        result.downloadUrl,
+                    )
+                }
+            }
+        }
+    }
+
+    private suspend fun performUpdateCheck(design: MainDesign, fromAbout: Boolean) {
+        val versionName = queryAppVersionName().lines().firstOrNull() ?: return
+
+        if (fromAbout) {
+            design.showToast(DesignR.string.check_for_updates, ToastDuration.Short)
+        }
+
+        kotlinx.coroutines.GlobalScope.launch(Dispatchers.IO) {
+            val result = UpdateChecker.check(versionName)
+            withContext(Dispatchers.Main) {
+                if (result != null) {
+                    updateInfo = result
+                    design.showUpdateAvailable(
+                        result.currentVersion,
+                        result.latestVersion,
+                        result.downloadUrl,
+                    )
+                } else if (fromAbout) {
+                    design.showNoUpdate()
                 }
             }
         }
@@ -149,6 +207,11 @@ class MainActivity : BaseActivity<MainDesign>() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        if (!LockActivity.isUnlocked(this)) {
+            startActivity(Intent(this, LockActivity::class.java))
+            finish()
+            return
+        }
         super.onCreate(savedInstanceState)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             val requestPermissionLauncher =

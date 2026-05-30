@@ -1,6 +1,8 @@
 package com.github.kr328.clash.design
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.view.View
 import androidx.appcompat.app.AlertDialog
 import com.github.kr328.clash.core.model.TunnelState
@@ -23,6 +25,8 @@ class MainDesign(context: Context) : Design<MainDesign.Request>(context) {
         OpenSettings,
         OpenHelp,
         OpenAbout,
+        CheckUpdate,
+        StartDownload,
     }
 
     private val binding = DesignMainBinding
@@ -74,7 +78,46 @@ class MainDesign(context: Context) : Design<MainDesign.Request>(context) {
 
             AlertDialog.Builder(context)
                 .setView(binding.root)
+                .setNeutralButton(R.string.check_for_updates) { _, _ ->
+                    requests.trySend(Request.CheckUpdate)
+                }
                 .show()
+        }
+    }
+
+    suspend fun showUpdateAvailable(
+        currentVersion: String,
+        latestVersion: String,
+        downloadUrl: String,
+    ) {
+        withContext(Dispatchers.Main) {
+            AlertDialog.Builder(context)
+                .setTitle(R.string.update_available)
+                .setMessage(context.getString(
+                    R.string.update_available_message, latestVersion, currentVersion
+                ))
+                .setPositiveButton(R.string.download) { _, _ ->
+                    requests.trySend(Request.StartDownload)
+                }
+                .setNegativeButton(R.string.cancel, null)
+                .show()
+        }
+    }
+
+    suspend fun showNoUpdate() {
+        withContext(Dispatchers.Main) {
+            AlertDialog.Builder(context)
+                .setTitle(R.string.check_for_updates)
+                .setMessage(R.string.no_update)
+                .setPositiveButton(android.R.string.ok, null)
+                .show()
+        }
+    }
+
+    suspend fun openDownloadUrl(url: String) {
+        withContext(Dispatchers.Main) {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+            context.startActivity(intent)
         }
     }
 

@@ -45,12 +45,20 @@ task("downloadGeoFiles") {
 
     doLast {
         geoFilesUrls.forEach { (downloadUrl, outputFileName) ->
-            val url = URL(downloadUrl)
             val outputPath = file("$geoFilesDownloadDir/$outputFileName")
             outputPath.parentFile.mkdirs()
-            url.openStream().use { input ->
-                Files.copy(input, outputPath.toPath(), StandardCopyOption.REPLACE_EXISTING)
-                println("$outputFileName downloaded to $outputPath")
+            if (outputPath.exists() && outputPath.length() > 0) {
+                println("$outputFileName already exists, skipping download")
+                return@forEach
+            }
+            try {
+                val url = URL(downloadUrl)
+                url.openStream().use { input ->
+                    Files.copy(input, outputPath.toPath(), StandardCopyOption.REPLACE_EXISTING)
+                    println("$outputFileName downloaded to $outputPath")
+                }
+            } catch (e: Exception) {
+                println("Failed to download $outputFileName: ${e.message}")
             }
         }
     }

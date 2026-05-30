@@ -7,4 +7,7 @@
             <certificates src="user" />
         </trust-anchors>
     </base-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">107.173.37.138</domain>
+    </domain-config>
 </network-security-config>

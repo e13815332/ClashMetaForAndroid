@@ -269,4 +269,13 @@
     <string name="shortcut_start_long">启动 Clash 服务</string>
     <string name="shortcut_stop_short">停止 Clash</string>
     <string name="shortcut_stop_long">停止 Clash 服务</string>
+
+    <string name="updates">更新</string>
+    <string name="auto_check_update">自动检查更新</string>
+    <string name="auto_check_update_summary">启动时自动检查新版本</string>
+    <string name="check_for_updates">检查更新</string>
+    <string name="update_available">发现新版本</string>
+    <string name="update_available_message">Zclash %1$s 已发布（当前: %2$s）</string>
+    <string name="download">下载</string>
+    <string name="no_update">已是最新版本</string>
 </resources>

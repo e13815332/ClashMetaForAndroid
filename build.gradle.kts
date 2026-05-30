@@ -9,7 +9,7 @@ buildscript {
     repositories {
         mavenCentral()
         google()
-        maven("https://raw.githubusercontent.com/MetaCubeX/maven-backup/main/releases")
+        maven("https://gh.idayer.com/https://raw.githubusercontent.com/MetaCubeX/maven-backup/main/releases")
     }
     dependencies {
         classpath(libs.build.android)
@@ -24,7 +24,7 @@ subprojects {
     repositories {
         mavenCentral()
         google()
-        maven("https://raw.githubusercontent.com/MetaCubeX/maven-backup/main/releases")
+        maven("https://gh.idayer.com/https://raw.githubusercontent.com/MetaCubeX/maven-backup/main/releases")
     }
 
     val isApp = name == "app"
@@ -58,8 +58,8 @@ subprojects {
             minSdk = 21
             targetSdk = 35
 
-            versionName = "2.11.28"
-            versionCode = 211028
+            versionName = "1.0.4"
+            versionCode = 1004
 
             resValue("string", "release_name", "v$versionName")
             resValue("integer", "release_code", "$versionCode")
@@ -81,7 +81,7 @@ subprojects {
             }
         }
 
-        ndkVersion = "29.0.14206865"
+        ndkVersion = "28.2.13676358"
 
         compileSdkVersion(defaultConfig.targetSdk!!)
 
@@ -108,8 +108,8 @@ subprojects {
 
                 buildConfigField("boolean", "PREMIUM", "Boolean.parseBoolean(\"false\")")
 
-                resValue("string", "launch_name", "@string/launch_name_alpha")
-                resValue("string", "application_name", "@string/application_name_alpha")
+                resValue("string", "launch_name", "Zclash Alpha")
+                resValue("string", "application_name", "Zclash Alpha")
 
                 if (isApp && !removeSuffix) {
                     applicationIdSuffix = ".alpha"
@@ -125,8 +125,8 @@ subprojects {
 
                 buildConfigField("boolean", "PREMIUM", "Boolean.parseBoolean(\"false\")")
 
-                resValue("string", "launch_name", "@string/launch_name_meta")
-                resValue("string", "application_name", "@string/application_name_meta")
+                resValue("string", "launch_name", "Zclash")
+                resValue("string", "application_name", "Zclash")
 
                 if (isApp && !removeSuffix) {
                     applicationIdSuffix = ".meta"
